@@ -43,7 +43,7 @@ The response in case of an unauthorized request can be modified, by specifying
 a Rack app, like this:
 
 ``` ruby
-unauthorized_app = lambda { |env| [ 401, {}, ["Please speak to our sales dep. for access"] }
+unauthorized_app = lambda { |env| [ 401, {}, ["Please speak to our sales dep. for access"] ] }
 use Rack::TokenAuth, :unauthorized_app => unauthorized_app do |token, options|
   # etc...
 end
@@ -53,7 +53,7 @@ If the authorization header is malformed, the middleware chain will also be
 halted and a 400 response will be returned. You can also specify this:
 
 ``` ruby
-unprocessable_header_app = lambda { |env| [ 400, {}, ["You idiot!"] }
+unprocessable_header_app = lambda { |env| [ 400, {}, ["You idiot!"] ] }
 use Rack::TokenAuth, :unprocessable_header_app => unprocessable_header_app do |token, options|
   # etc...
 end
