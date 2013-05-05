@@ -11,18 +11,21 @@ describe Rack::TokenAuth do
     let(:app) { build_app(&block) }
 
     it "evaluates the block with token and options" do
-      block.should_receive(:call).with("abc", "foo" => "bar")
-      app.call("HTTP_AUTHORIZATION" => %(Token token="abc", foo="bar"))
+      env = { "HTTP_AUTHORIZATION" => %(Token token="abc", foo="bar") }
+      block.should_receive(:call).with("abc", {"foo" => "bar"}, env)
+      app.call(env)
     end
 
     it "handles absent header" do
-      block.should_receive(:call).with(nil, {})
-      app.call({})
+      env = {}
+      block.should_receive(:call).with(nil, {}, env)
+      app.call(env)
     end
 
     it "handles other authorization header" do
-      block.should_receive(:call).with(nil, {})
-      app.call("HTTP_AUTHORIZATION" => %(Basic QWxhZGluOnNlc2FtIG9wZW4=))
+      env = { "HTTP_AUTHORIZATION" => %(Basic QWxhZGluOnNlc2FtIG9wZW4=) }
+      block.should_receive(:call).with(nil, {}, env)
+      app.call(env)
     end
 
     it "handles misformed authorization header" do

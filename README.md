@@ -19,7 +19,7 @@ Add to your middleware chain, add it to `config.ru`:
 ``` ruby
 require 'rack/token_auth'
 
-use Rack::TokenAuth do |token, options|
+use Rack::TokenAuth do |token, options, env|
   token == "my secret token"
 end
 
@@ -32,7 +32,7 @@ returns false, the request will halt with a 401 (Unauthorized) response.
 If you're using Rails, add to `config/environments/production.rb`:
 
 ``` ruby
-config.middleware.use Rack::TokenAuth do |token, options|
+config.middleware.use Rack::TokenAuth do |token, options, env|
   # etc...
 end
 ```
@@ -44,7 +44,7 @@ a Rack app, like this:
 
 ``` ruby
 unauthorized_app = lambda { |env| [ 401, {}, ["Please speak to our sales dep. for access"] ] }
-use Rack::TokenAuth, :unauthorized_app => unauthorized_app do |token, options|
+use Rack::TokenAuth, :unauthorized_app => unauthorized_app do |token, options, env|
   # etc...
 end
 ```
@@ -54,7 +54,7 @@ halted and a 400 response will be returned. You can also specify this:
 
 ``` ruby
 unprocessable_header_app = lambda { |env| [ 400, {}, ["You idiot!"] ] }
-use Rack::TokenAuth, :unprocessable_header_app => unprocessable_header_app do |token, options|
+use Rack::TokenAuth, :unprocessable_header_app => unprocessable_header_app do |token, options, env|
   # etc...
 end
 ```

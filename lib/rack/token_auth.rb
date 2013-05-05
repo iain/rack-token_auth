@@ -12,12 +12,13 @@ module Rack
     end
 
     def call(env)
-      if @block.call(*token_and_options(env["HTTP_AUTHORIZATION"]))
+      token, options = *token_and_options(env["HTTP_AUTHORIZATION"])
+      if @block.call(token, options, env)
         @app.call(env)
       else
         unauthorized_app.call(env)
       end
-    rescue UnprocessableHeader => error
+    rescue UnprocessableHeader
       unprocessable_header_app.call(env)
     end
 
