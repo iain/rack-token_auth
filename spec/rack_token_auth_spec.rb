@@ -5,6 +5,28 @@ describe Rack::TokenAuth do
 
   Endpoint = Rack::Response.new("OK")
 
+  describe "parsing authorization api key in parameters" do
+    let(:block) { lambda { |token| } }
+    let(:app)   { build_app(check_parameter: true, &block) }
+
+    it "evaluates the block with token and options" do
+      env = Rack::MockRequest.env_for('http://example.com/test?api_token=abc')
+      block.should_receive(:call).with("abc", {}, env)
+      app.call(env)
+    end
+  end
+
+  describe "parsing custom authorization api key in parameters" do
+    let(:block) { lambda { |token| } }
+    let(:app)   { build_app(check_parameter: 'wieslaw', &block) }
+
+    it "evaluates the block with token and options" do
+      env = Rack::MockRequest.env_for('http://example.com/test?wieslaw=abc')
+      block.should_receive(:call).with("abc", {}, env)
+      app.call(env)
+    end
+  end
+
   describe "parsing the authorization header" do
 
     let(:block) { lambda { |token| } }
