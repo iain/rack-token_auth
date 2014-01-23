@@ -59,6 +59,17 @@ use Rack::TokenAuth, :unprocessable_header_app => unprocessable_header_app do |t
 end
 ```
 
+You could also specify api_key in params. If you would like to handle API key
+in param You need to specify :check_parameter with true or custom parameter name:
+
+``` ruby
+use Rack::TokenAuth, check_parameter: true do |token, options, env|
+  # etc...
+end
+```
+
+Middleware will try to find api key in headers, next it will fallback to parameter 'api_token'.
+
 ## Installation
 
 Add this line to your application's Gemfile:

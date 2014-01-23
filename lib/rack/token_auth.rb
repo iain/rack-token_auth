@@ -12,7 +12,19 @@ module Rack
     end
 
     def call(env)
+      # Try to find API key by default HTTP Header
       token, options = *token_and_options(env["HTTP_AUTHORIZATION"])
+
+      # If user specifies extra parameter to check also apply this filter
+      if @options[:check_parameter] && token.nil?
+        # Initialize Rack::Request only if needed
+        rack_request  = Rack::Request.new(env)
+        param_value   = @options[:check_parameter] == true ? 'api_token' : @options[:check_parameter].to_s
+        param_api_key = rack_request.params[param_value]
+        # Set token and options
+        token, options = [param_api_key, { }] if param_api_key && param_api_key.size > 0
+      end
+
       if @block.call(token, options, env)
         @app.call(env)
       else
