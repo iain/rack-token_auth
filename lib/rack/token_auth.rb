@@ -31,11 +31,11 @@ module Rack
     end
 
     def default_unprocessable_header_app
-      lambda { |env| Rack::Response.new("Unprocessable Authorization header", 400) }
+      lambda { |env| Rack::Response.new("Unprocessable Authorization header", 400).to_a }
     end
 
     def default_unauthorized_app
-      lambda { |env| Rack::Response.new("Unauthorized", 401) }
+      lambda { |env| Rack::Response.new("Unauthorized", 401).to_a }
     end
 
     # Taken and adapted from Rails
