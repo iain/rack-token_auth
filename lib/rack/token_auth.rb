@@ -1,4 +1,6 @@
-require 'rack/token_auth/version'
+# frozen_string_literal: true
+
+require "rack/token_auth/version"
 
 module Rack
   class TokenAuth
@@ -31,11 +33,11 @@ module Rack
     end
 
     def default_unprocessable_header_app
-      lambda { |env| Rack::Response.new("Unprocessable Authorization header", 400).to_a }
+      lambda { |_env| Rack::Response.new("Unprocessable Authorization header", 400).to_a }
     end
 
     def default_unauthorized_app
-      lambda { |env| Rack::Response.new("Unauthorized", 401).to_a }
+      lambda { |_env| Rack::Response.new("Unauthorized", 401).to_a }
     end
 
     # Taken and adapted from Rails
@@ -44,19 +46,19 @@ module Rack
       token = header.to_s.match(/^Token (.*)/) { |m| m[1] }
       if token
         begin
-          values = Hash[token.split(',').map do |value|
-            value.strip!                      # remove any spaces between commas and values
-            key, value = value.split(/\=\"?/) # split key=value pairs
-            value.chomp!('"')                 # chomp trailing " in value
-            value.gsub!(/\\\"/, '"')          # unescape remaining quotes
+          values = Hash[token.split(",").map do |value|
+            value.strip! # remove any spaces between commas and values
+            key, value = value.split(/="?/) # split key=value pairs
+            value.chomp!('"') # chomp trailing " in value
+            value.gsub!(/\\"/, '"') # unescape remaining quotes
             [key, value]
           end]
           [values.delete("token"), values]
-        rescue => error
-          raise UnprocessableHeader, error
+        rescue StandardError => exception
+          raise UnprocessableHeader, exception
         end
       else
-        [nil,{}]
+        [nil, {}]
       end
     end
 

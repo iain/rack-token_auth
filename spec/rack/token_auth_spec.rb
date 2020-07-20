@@ -1,9 +1,8 @@
-require 'rack'
-require 'rack/token_auth'
+# frozen_string_literal: true
 
-describe Rack::TokenAuth do
+require "spec_helper"
 
-  Endpoint = Rack::Response.new("OK")
+RSpec.describe Rack::TokenAuth do
 
   describe "parsing the authorization header" do
 
@@ -12,33 +11,33 @@ describe Rack::TokenAuth do
 
     it "evaluates the block with token and options" do
       env = { "HTTP_AUTHORIZATION" => %(Token token="abc", foo="bar") }
-      block.should_receive(:call).with("abc", {"foo" => "bar"}, env)
+      expect(block).to receive(:call).with("abc", { "foo" => "bar" }, env)
       app.call(env)
     end
 
     it "handles absent header" do
       env = {}
-      block.should_receive(:call).with(nil, {}, env)
+      expect(block).to receive(:call).with(nil, {}, env)
       app.call(env)
     end
 
     it "handles other authorization header" do
       env = { "HTTP_AUTHORIZATION" => %(Basic QWxhZGluOnNlc2FtIG9wZW4=) }
-      block.should_receive(:call).with(nil, {}, env)
+      expect(block).to receive(:call).with(nil, {}, env)
       app.call(env)
     end
 
     it "handles misformed authorization header" do
-      block.should_not_receive(:call)
+      expect(block).not_to receive(:call)
       result = app.call("HTTP_AUTHORIZATION" => %(Token foobar))
-      result.status.should eq 400
+      expect(result.first).to eq 400
     end
 
     it "allows specifying the unprocessable header app" do
-      unprocessable_header_app = mock :unprocessable_header_app
-      app = build_app(:unprocessable_header_app => unprocessable_header_app)
+      unprocessable_header_app = double :unprocessable_header_app
+      app = build_app(unprocessable_header_app: unprocessable_header_app)
 
-      unprocessable_header_app.should_receive(:call)
+      expect(unprocessable_header_app).to receive(:call)
       app.call("HTTP_AUTHORIZATION" => %(Token foobar))
     end
 
@@ -46,26 +45,26 @@ describe Rack::TokenAuth do
 
   context "when block returns false" do
 
-    let(:env) { mock :env, :[] => true }
+    let(:env) { double :env, :[] => true }
 
     it "doesn't call the rest of the app" do
       app = build_app do false end
-      Endpoint.should_not_receive(:call)
+      expect(Endpoint).not_to receive(:call)
       app.call(env)
     end
 
     it "has a default response" do
       app = build_app do false end
       result = app.call(env)
-      result.body.should eq ["Unauthorized"]
-      result.status.should eq 401
+      expect(result.last).to eq ["Unauthorized"]
+      expect(result.first).to eq 401
     end
 
     it "is able to set the unauthorized app" do
-      unauthorized_app = mock :unauthorized_app
-      app = build_app :unauthorized_app => unauthorized_app do false end
+      unauthorized_app = double :unauthorized_app
+      app = build_app unauthorized_app: unauthorized_app do false end
 
-      unauthorized_app.should_receive(:call).with(env)
+      expect(unauthorized_app).to receive(:call).with(env)
       app.call(env)
     end
 
@@ -73,11 +72,11 @@ describe Rack::TokenAuth do
 
   context "when the block returns true" do
 
-    let(:env) { mock :env, :[] => true }
+    let(:env) { double :env, :[] => true }
 
     it "calls the rest of your app" do
       app = build_app do true end
-      Endpoint.should_receive(:call).with(env)
+      expect(Endpoint).to receive(:call).with(env)
       app.call(env)
     end
 
